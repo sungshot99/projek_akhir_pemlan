@@ -5,13 +5,13 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.attribute.FileTime;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
@@ -41,6 +41,14 @@ public class Controller implements Initializable {
     private CheckMenuItem font_menu_times_new_roman;
     @FXML
     private CheckMenuItem font_menu_comic_sans;
+    @FXML
+    private Slider font_size_slider;
+
+    @FXML
+    private void changeFontSize(MouseEvent e){
+        font_size_slider.valueProperty().addListener((observableValue, number, t1) ->
+                txtArea_main.setFont(new Font(t1.doubleValue())));
+    }
 
     public void setBtn_clear(ActionEvent event){
         txtArea_main.setText("");
@@ -126,11 +134,15 @@ public class Controller implements Initializable {
         loadFileTask.run();
     }
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        font_size_slider.setMin(12.0);
+        font_size_slider.setShowTickLabels(true);
+        font_size_slider.setShowTickMarks(true);
 
         font_menu_arial.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Arial", 12.0));
+            txtArea_main.setFont(new Font("Arial", txtArea_main.getFont().getSize()));
             font_menu_times_new_roman.setSelected(false);
             font_menu_segoe.setSelected(false);
             font_menu_comic_sans.setSelected(false);
@@ -138,7 +150,7 @@ public class Controller implements Initializable {
         });
 
         font_menu_calibri.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Calibri", 12.0));
+            txtArea_main.setFont(new Font("Calibri", txtArea_main.getFont().getSize()));
             font_menu_comic_sans.setSelected(false);
             font_menu_segoe.setSelected(false);
             font_menu_arial.setSelected(false);
@@ -146,7 +158,7 @@ public class Controller implements Initializable {
         });
 
         font_menu_comic_sans.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Comic Sans MS", 12.0));
+            txtArea_main.setFont(new Font("Comic Sans MS", txtArea_main.getFont().getSize()));
             font_menu_arial.setSelected(false);
             font_menu_calibri.setSelected(false);
             font_menu_times_new_roman.setSelected(false);
@@ -154,7 +166,7 @@ public class Controller implements Initializable {
         });
 
         font_menu_segoe.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Segoe UI", 12.0));
+            txtArea_main.setFont(new Font("Segoe UI", txtArea_main.getFont().getSize()));
             font_menu_arial.setSelected(false);
             font_menu_calibri.setSelected(false);
             font_menu_times_new_roman.setSelected(false);
@@ -162,12 +174,11 @@ public class Controller implements Initializable {
         });
 
         font_menu_times_new_roman.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Times New Roman", 12.0));
+            txtArea_main.setFont(new Font("Times New Roman", txtArea_main.getFont().getSize()));
             font_menu_arial.setSelected(false);
             font_menu_calibri.setSelected(false);
             font_menu_comic_sans.setSelected(false);
             font_menu_segoe.setSelected(false);
         });
     }
-
 }

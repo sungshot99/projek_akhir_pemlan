@@ -8,11 +8,10 @@ import javafx.scene.control.*;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.attribute.FileTime;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
@@ -42,6 +41,29 @@ public class Controller implements Initializable {
     private CheckMenuItem font_menu_times_new_roman;
     @FXML
     private CheckMenuItem font_menu_comic_sans;
+
+    public void setBtn_clear(ActionEvent event){
+        txtArea_main.setText("");
+    }
+
+    public void saveFile(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt")
+        );
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        String fileToSave = fileChooser.showSaveDialog(null).getAbsolutePath();
+
+        try {
+            FileWriter myWriter = new FileWriter(fileToSave);
+            myWriter.write(txtArea_main.getText());
+            myWriter.close();
+            System.out.println("Successfully wrote to the file.");
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
 
     public void chooseFile(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();

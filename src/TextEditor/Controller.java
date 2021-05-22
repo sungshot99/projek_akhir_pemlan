@@ -67,21 +67,8 @@ public class Controller implements Initializable {
             myWriter.write(txtArea_main.getText());
             myWriter.close();
             System.out.println("Successfully wrote to the file.");
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("");
-            alert.setHeaderText("Saved Succesfully");
-            alert.setContentText("");
-            alert.showAndWait();
-
         } catch (IOException e) {
             System.out.println(e);
-
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Peringatan");
-            alert.setHeaderText("Kesalahan teknis");
-            alert.setContentText(e+"");
-            alert.showAndWait();
         }
     }
 

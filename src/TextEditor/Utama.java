@@ -4,6 +4,7 @@ package TextEditor;
         import javafx.fxml.FXMLLoader;
         import javafx.scene.Parent;
         import javafx.scene.Scene;
+        import javafx.scene.image.Image;
         import javafx.stage.Stage;
 
 public class Utama extends Application {
@@ -11,7 +12,8 @@ public class Utama extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("Text Editor"); //ganti nama program
+        primaryStage.getIcons().add(new Image("file:Pensil.png")); //Ganti icon program
         primaryStage.setScene(new Scene(root, 600, 500));
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(500);

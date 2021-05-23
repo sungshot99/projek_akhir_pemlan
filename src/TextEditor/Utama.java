@@ -1,13 +1,19 @@
 package TextEditor;
 
-        import javafx.application.Application;
+import javafx.application.Application;
         import javafx.fxml.FXMLLoader;
         import javafx.scene.Parent;
         import javafx.scene.Scene;
-        import javafx.scene.image.Image;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.image.Image;
+        import javafx.scene.text.Font;
         import javafx.stage.Stage;
 
+import java.util.List;
+
 public class Utama extends Application {
+
+    static Stage stage;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
@@ -18,6 +24,7 @@ public class Utama extends Application {
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(500);
         primaryStage.show();
+        stage = primaryStage;
     }
 
 

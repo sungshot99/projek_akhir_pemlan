@@ -5,18 +5,19 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 public class Controller implements Initializable {
+    @FXML
+    public MenuItem menu_item_exit;
     @FXML
     private Button btn_clear;
     @FXML
@@ -24,108 +25,96 @@ public class Controller implements Initializable {
     @FXML
     private Button btn_open;
     @FXML
-    private MenuButton btn_font;
-    @FXML
     private Button btn_insert_img;
     @FXML
     private TextArea txtArea_main;
     @FXML
     private Label label_notif;
     @FXML
-    private CheckMenuItem font_menu_calibri;
+    private ChoiceBox<String> menu_font;
     @FXML
-    private CheckMenuItem font_menu_segoe;
+    private ChoiceBox<Double> menu_font_size;
     @FXML
-    private CheckMenuItem font_menu_arial;
-    @FXML
-    private CheckMenuItem font_menu_times_new_roman;
-    @FXML
-    private CheckMenuItem font_menu_comic_sans;
-    @FXML
-    private Slider font_size_slider;
-
-    @FXML
-    private void changeFontSize(MouseEvent e){
-        font_size_slider.valueProperty().addListener((observableValue, number, t1) ->
-                txtArea_main.setFont(new Font(t1.doubleValue())));
-    }
+    private MenuItem menu_item_wrap;
 
     public void setBtn_clear(ActionEvent event){
-        txtArea_main.setText("");
+        txtArea_main.clear();
+        label_notif.setVisible(true);
+        label_notif.setText("Text deleted");
     }
 
     public void saveFile(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt")
-        );
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-        String fileToSave = fileChooser.showSaveDialog(null).getAbsolutePath();
+        label_notif.setVisible(true);
+        if (!txtArea_main.getText().isEmpty()){
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt")
+            );
+            fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+            String fileToSave = fileChooser.showSaveDialog(null).getAbsolutePath();
 
-        try {
-            FileWriter myWriter = new FileWriter(fileToSave);
-            myWriter.write(txtArea_main.getText());
-            myWriter.close();
-            System.out.println("Successfully wrote to the file.");
-        } catch (IOException e) {
-            System.out.println(e);
-        }
+            try {
+                FileWriter myWriter = new FileWriter(fileToSave);
+                myWriter.write(txtArea_main.getText());
+                myWriter.close();
+                System.out.println("Successfully wrote to the file.");
+            } catch (IOException e) {
+                label_notif.setText(e.toString());
+            }
+        } else label_notif.setText("Text is Empty.");
     }
 
 
-    public void chooseFile(ActionEvent event) {
+    public void chooseFile(ActionEvent e) {
         FileChooser fileChooser = new FileChooser();
-        //only allow text files to be selected using chooser
         fileChooser.getExtensionFilters().add(
                 new FileChooser.ExtensionFilter("Text files (*.txt)", "*.txt")
         );
-        //set initial directory somewhere user will recognise
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-        //let user select file
         File fileToLoad = fileChooser.showOpenDialog(null);
-        //if file has been chosen, load it using asynchronous method (define later)
         if(fileToLoad != null){
             loadFileToTextArea(fileToLoad);
         }
     }
 
     private Task<String> fileLoaderTask(File fileToLoad){
-        //Create a task to load the file asynchronously
         Task<String> loadFileTask = new Task<>() {
             @Override
             protected String call() throws Exception {
                 BufferedReader reader = new BufferedReader(new FileReader(fileToLoad));
-                //Use Files.lines() to calculate total lines - used for progress
+
                 long lineCount;
                 try (Stream<String> stream = Files.lines(fileToLoad.toPath())) {
                     lineCount = stream.count();
                 }
-                //Load in all lines one by one into a StringBuilder separated by "\n" - compatible with TextArea
+
                 String line;
-                StringBuilder totalFile = new StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 long linesLoaded = 0;
                 while((line = reader.readLine()) != null) {
-                    totalFile.append(line);
-                    totalFile.append("\n");
+                    sb.append(line);
+                    sb.append("\n");
                     updateProgress(++linesLoaded, lineCount);
                 }
-                return totalFile.toString();
+                return sb.toString();
             }
         };
-        //If successful, update the text area, display a success message and store the loaded file reference
+
         loadFileTask.setOnSucceeded(workerStateEvent -> {
             try {
                 txtArea_main.setText(loadFileTask.get());
+                label_notif.setVisible(true);
                 label_notif.setText("File loaded: " + fileToLoad.getName());
             } catch (InterruptedException | ExecutionException e) {
-                txtArea_main.setText("Could not load file from:\n " + fileToLoad.getAbsolutePath());
+                txtArea_main.setText("Could not load file from:\n" + fileToLoad.getAbsolutePath());
             }
         });
-        //If unsuccessful, set text area with error message and status message to failed
+
         loadFileTask.setOnFailed(workerStateEvent -> {
-            txtArea_main.setText("Could not load file from:\n " + fileToLoad.getAbsolutePath());
+            label_notif.setVisible(true);
+            txtArea_main.setText("Could not load file from:\n" + fileToLoad.getAbsolutePath());
             label_notif.setText("Failed to load file");
         });
+
         return loadFileTask;
     }
 
@@ -134,51 +123,38 @@ public class Controller implements Initializable {
         loadFileTask.run();
     }
 
+    public void wrapText(ActionEvent e){
+        txtArea_main.setWrapText(true);
+    }
+
+    public void onCloseClicked(ActionEvent e){
+        Utama.stage.close();
+    }
+
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        font_size_slider.setMin(12.0);
-        font_size_slider.setShowTickLabels(true);
-        font_size_slider.setShowTickMarks(true);
+        setupFontChoiceBox();
+        setupFontSizeChoiceBox();
+        label_notif.setVisible(false);
+    }
 
-        font_menu_arial.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Arial", txtArea_main.getFont().getSize()));
-            font_menu_times_new_roman.setSelected(false);
-            font_menu_segoe.setSelected(false);
-            font_menu_comic_sans.setSelected(false);
-            font_menu_calibri.setSelected(false);
-        });
+    private void setupFontChoiceBox() {
+        List<String> fonts = Font.getFamilies();
 
-        font_menu_calibri.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Calibri", txtArea_main.getFont().getSize()));
-            font_menu_comic_sans.setSelected(false);
-            font_menu_segoe.setSelected(false);
-            font_menu_arial.setSelected(false);
-            font_menu_times_new_roman.setSelected(false);
-        });
+        menu_font.setValue("Calibri");
+        menu_font.getItems().addAll(fonts);
+        txtArea_main.setFont(new Font("Calibri", 12.0));
 
-        font_menu_comic_sans.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Comic Sans MS", txtArea_main.getFont().getSize()));
-            font_menu_arial.setSelected(false);
-            font_menu_calibri.setSelected(false);
-            font_menu_times_new_roman.setSelected(false);
-            font_menu_segoe.setSelected(false);
-        });
+        menu_font.getSelectionModel().selectedIndexProperty().addListener(
+                (observableValue, number, t1) -> txtArea_main.setFont(new Font(fonts.get(t1.intValue()), txtArea_main.getFont().getSize())));
+    }
 
-        font_menu_segoe.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Segoe UI", txtArea_main.getFont().getSize()));
-            font_menu_arial.setSelected(false);
-            font_menu_calibri.setSelected(false);
-            font_menu_times_new_roman.setSelected(false);
-            font_menu_comic_sans.setSelected(false);
-        });
-
-        font_menu_times_new_roman.setOnAction(actionEvent -> {
-            txtArea_main.setFont(new Font("Times New Roman", txtArea_main.getFont().getSize()));
-            font_menu_arial.setSelected(false);
-            font_menu_calibri.setSelected(false);
-            font_menu_comic_sans.setSelected(false);
-            font_menu_segoe.setSelected(false);
-        });
+    private void setupFontSizeChoiceBox(){
+        menu_font_size.setValue(12.0);
+        List<Double> fontSizes = Arrays.asList(7.0, 8.0, 10.0, 11.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 36.0, 48.0, 72.0);
+        menu_font_size.getItems().addAll(fontSizes);
+        menu_font_size.getSelectionModel().selectedIndexProperty().addListener(
+                (observableValue, number, t1) -> txtArea_main.setFont(new Font(txtArea_main.getFont().getFamily(), fontSizes.get(t1.intValue()))));
     }
 }

@@ -5,9 +5,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.effect.ImageInput;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
-
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -18,24 +21,19 @@ import java.util.stream.Stream;
 public class Controller implements Initializable {
     @FXML
     public MenuItem menu_item_exit;
-    @FXML
-    private Button btn_clear;
-    @FXML
-    private Button btn_save;
-    @FXML
-    private Button btn_open;
-    @FXML
-    private Button btn_insert_img;
-    @FXML
-    private TextArea txtArea_main;
-    @FXML
-    private Label label_notif;
-    @FXML
-    private ChoiceBox<String> menu_font;
-    @FXML
-    private ChoiceBox<Double> menu_font_size;
-    @FXML
-    private MenuItem menu_item_wrap;
+    public TabPane tab_pane;
+    public ImageView iv_image;
+    public Button btn_clear;
+    public Button btn_save;
+    public Button btn_open;
+    public Button btn_insert_img;
+    public TextArea txtArea_main;
+    public Label label_notif;
+    public ChoiceBox<String> menu_font;
+    public ChoiceBox<Double> menu_font_size;
+    public MenuItem menu_item_wrap;
+    public AnchorPane pane_atas;
+    public Tab tab_image;
 
     public void setBtn_clear(ActionEvent event){
         txtArea_main.clear();
@@ -62,6 +60,21 @@ public class Controller implements Initializable {
                 label_notif.setText(e.toString());
             }
         } else label_notif.setText("Text is Empty.");
+    }
+
+    public void insertImgBtnAction(ActionEvent e){
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image files", "*.jpg", "*.png"));
+
+        File imageToLoad = fileChooser.showOpenDialog(null);
+        if (imageToLoad != null){
+            Image image = new Image(imageToLoad.toURI().toString());
+            iv_image.setImage(image);
+            label_notif.setVisible(true);
+            label_notif.setText("Image loaded from : \n" + imageToLoad.getAbsolutePath());
+            tab_pane.getSelectionModel().select(1);
+            tab_image.setText(imageToLoad.getName());
+        }
     }
 
 
@@ -124,19 +137,11 @@ public class Controller implements Initializable {
     }
 
     public void wrapText(ActionEvent e){
-        txtArea_main.setWrapText(true);
+        txtArea_main.setWrapText(!txtArea_main.wrapTextProperty().get());
     }
 
     public void onCloseClicked(ActionEvent e){
         Utama.stage.close();
-    }
-
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        setupFontChoiceBox();
-        setupFontSizeChoiceBox();
-        label_notif.setVisible(false);
     }
 
     private void setupFontChoiceBox() {
@@ -156,5 +161,12 @@ public class Controller implements Initializable {
         menu_font_size.getItems().addAll(fontSizes);
         menu_font_size.getSelectionModel().selectedIndexProperty().addListener(
                 (observableValue, number, t1) -> txtArea_main.setFont(new Font(txtArea_main.getFont().getFamily(), fontSizes.get(t1.intValue()))));
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        setupFontChoiceBox();
+        setupFontSizeChoiceBox();
+        label_notif.setVisible(false);
     }
 }

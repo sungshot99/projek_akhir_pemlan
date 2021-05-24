@@ -74,6 +74,8 @@ public class Controller implements Initializable {
             label_notif.setText("Image loaded from : \n" + imageToLoad.getAbsolutePath());
             tab_pane.getSelectionModel().select(1);
             tab_image.setText(imageToLoad.getName());
+        } else {
+            label_notif.setText("Error while reading file");
         }
     }
 

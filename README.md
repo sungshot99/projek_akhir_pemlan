@@ -1,2 +1,1 @@
-
-Projek Akhir Mata Kuliah Pemrograman Lanjut UB.
+Projek Akhir Mata Kuliah Pemrograman Lanjut
